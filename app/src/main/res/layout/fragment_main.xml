@@ -1,0 +1,33 @@
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="0dp"
+    android:paddingRight="0dp"
+    android:paddingTop="0dp"
+    android:paddingBottom="0dp"
+    android:background="@color/grey_800"
+    tools:context=".MainActivityFragment">
+    <Spinner
+        android:id="@+id/SpinnerSortBy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:background="@android:drawable/editbox_background_normal"
+        android:spinnerMode="dropdown" />
+
+    <GridView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/GridViewPosters"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:numColumns="2"
+        android:verticalSpacing="0dp"
+        android:horizontalSpacing="0dp"
+        android:stretchMode="columnWidth"
+        android:gravity="center"
+        android:layout_below="@+id/SpinnerSortBy">
+    </GridView>
+</RelativeLayout>
