@@ -36,13 +36,7 @@ import java.util.ArrayList;
  */
 public class MainActivityFragment extends Fragment {
 
-    private ArrayList<String> mMoviesPoster = new ArrayList<>();
-    private ArrayList<String> mMoviesBackdrop = new ArrayList<>();
-    private ArrayList<String> mMoviesTitles = new ArrayList<>();
-    private ArrayList<String> mMoviesRelease = new ArrayList<>();
-    private ArrayList<String> mMoviesVoteAverage = new ArrayList<>();
-    private ArrayList<String> mMoviesOverview = new ArrayList<>();
-
+    private ArrayList<JSONObject> MoviesList = new ArrayList<>();
     private ImageAdapter mMoviesAdapter;
 
     public MainActivityFragment() {
@@ -67,12 +61,16 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent showDetail = new Intent(getActivity(), DetailActivity.class);
-                showDetail.putExtra("MoviePoster", mMoviesPoster.get(position));
-                showDetail.putExtra("MovieBackdrop", mMoviesBackdrop.get(position));
-                showDetail.putExtra("MovieTitle", mMoviesTitles.get(position));
-                showDetail.putExtra("MovieRelease", mMoviesRelease.get(position));
-                showDetail.putExtra("MovieVoteAverage", mMoviesVoteAverage.get(position));
-                showDetail.putExtra("MovieOverview", mMoviesOverview.get(position));
+                try {
+                    showDetail.putExtra("MoviePoster",MoviesList.get(position).getString("poster_path"));
+                    showDetail.putExtra("MovieBackdrop", MoviesList.get(position).getString("backdrop_path"));
+                    showDetail.putExtra("MovieTitle", MoviesList.get(position).getString("original_title"));
+                    showDetail.putExtra("MovieRelease", MoviesList.get(position).getString("release_date"));
+                    showDetail.putExtra("MovieVoteAverage",MoviesList.get(position).getString("vote_average"));
+                    showDetail.putExtra("MovieOverview", MoviesList.get(position).getString("overview"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 startActivity(showDetail);
             }
         });
@@ -112,13 +110,12 @@ public class MainActivityFragment extends Fragment {
     public class ImageAdapter extends BaseAdapter {
         private Context mContext;
 
-
         public ImageAdapter(Context c) {
             mContext = c;
         }
 
         public int getCount() {
-            return mMoviesPoster.size();
+            return MoviesList.size();
         }
 
         public Object getItem(int position) {
@@ -129,7 +126,6 @@ public class MainActivityFragment extends Fragment {
             return 0;
         }
 
-        // create a new ImageView for each item referenced by the Adapter
         public View getView(int position, View convertView, ViewGroup parent) {
             ImageView imageView;
             if (convertView == null) {
@@ -138,7 +134,12 @@ public class MainActivityFragment extends Fragment {
             } else {
                 imageView = (ImageView) convertView;
             }
-            String url = "http://image.tmdb.org/t/p/w185/" + mMoviesPoster.get(position);
+            String url = "";
+            try {
+                url = "http://image.tmdb.org/t/p/w185/" + MoviesList.get(position).getString("poster_path");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             Picasso.with(mContext)
                     .load(url)
                     .into(imageView);
@@ -154,30 +155,11 @@ public class MainActivityFragment extends Fragment {
         @Override
         protected void onPostExecute(JSONArray MoviesArray) {
             if (MoviesArray != null) {
-
-                mMoviesPoster.clear();
-                mMoviesBackdrop.clear();
-                mMoviesTitles.clear();
-                mMoviesRelease.clear();
-                mMoviesVoteAverage.clear();
-                mMoviesOverview.clear();
-
-                final String OWM_POSTER_PATH = "poster_path";
-                final String OWM_BACKDROP_PATH = "backdrop_path";
-                final String OWM_ORIGINAL_TITLE = "original_title";
-                final String OWM_RELEASE_DATE = "release_date";
-                final String OWM_VOTE_AVERAGE = "vote_average";
-                final String OWM_OVERVIEW = "overview";
-
+                MoviesList.clear();
                 for(int i = 0; i < MoviesArray.length(); i++) {
                     try {
                         JSONObject movie = MoviesArray.getJSONObject(i);
-                        mMoviesPoster.add(movie.getString(OWM_POSTER_PATH));
-                        mMoviesBackdrop.add(movie.getString(OWM_BACKDROP_PATH));
-                        mMoviesTitles.add(movie.getString(OWM_ORIGINAL_TITLE));
-                        mMoviesRelease.add(movie.getString(OWM_RELEASE_DATE));
-                        mMoviesVoteAverage.add(movie.getString(OWM_VOTE_AVERAGE));
-                        mMoviesOverview.add(movie.getString(OWM_OVERVIEW));
+                        MoviesList.add(movie);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -214,7 +196,6 @@ public class MainActivityFragment extends Fragment {
                 InputStream inputStream = urlConnection.getInputStream();
                 StringBuffer buffer = new StringBuffer();
                 if (inputStream == null) {
-                    // Nothing to do.
                     return null;
                 }
                 reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -257,9 +238,7 @@ public class MainActivityFragment extends Fragment {
 
             final String OWM_RESULTS = "results";
             JSONObject Json = new JSONObject(JsonStr);
-            JSONArray MoviesArray = Json.getJSONArray(OWM_RESULTS);
-
-            return MoviesArray;
+            return Json.getJSONArray(OWM_RESULTS);
 
         }
     }
