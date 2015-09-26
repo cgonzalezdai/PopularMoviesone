@@ -4,6 +4,9 @@
     <string name="title_activity_detail">Detail</string>
     <string name="no_image">no image</string>
 
+    <string name="MostPopular">Most Popular</string>
+    <string name="HighestRated">Highest Rated</string>
+
     <string name="title">title</string>
     <string name="release">release</string>
     <string name="rating">rating</string>

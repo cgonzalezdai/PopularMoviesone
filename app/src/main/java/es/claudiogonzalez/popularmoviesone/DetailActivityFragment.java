@@ -6,6 +6,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -34,6 +36,9 @@ public class DetailActivityFragment extends Fragment {
         poster.setAdjustViewBounds(true);
         String url = "http://image.tmdb.org/t/p/w500/" + MovieBackdrop;
         Picasso.with(getContext()).load(url).into(poster);
+
+        Animation scale = AnimationUtils.loadAnimation(getContext(), R.anim.scale);
+        poster.startAnimation(scale);
 
         ((TextView) rootView.findViewById(R.id.textViewTitle)).setText(MovieTitle);
         ((TextView) rootView.findViewById(R.id.textViewRelease)).setText("(" + MovieRelease + ")");

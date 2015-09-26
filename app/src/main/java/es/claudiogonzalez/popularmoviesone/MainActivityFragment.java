@@ -47,13 +47,13 @@ public class MainActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        CreateSpinner(rootView);
-        CreateGridView(rootView);
+        createSpinner(rootView);
+        createGridView(rootView);
 
         return rootView;
     }
 
-    public void CreateGridView(View rootView) {
+    public void createGridView(View rootView) {
         mMoviesAdapter = new ImageAdapter(getActivity());
         GridView gridView = (GridView) rootView.findViewById(R.id.GridViewPosters);
         gridView.setAdapter(mMoviesAdapter);
@@ -76,7 +76,7 @@ public class MainActivityFragment extends Fragment {
         });
     }
 
-    public void CreateSpinner(View rootView) {
+    public void createSpinner(View rootView) {
         Spinner spinner = (Spinner) rootView.findViewById(R.id.SpinnerSortBy);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
                 R.array.find_by_array, android.R.layout.simple_spinner_item);
@@ -98,9 +98,9 @@ public class MainActivityFragment extends Fragment {
 
     public void ListMoviesOrderBy(String item) {
         String query = "";
-        if (item.equals("Highest Rated")) {
+        if (item.equals(getString(R.string.HighestRated))) {
             query = "top_rated?";
-        } else if(item.equals("Most Popular")){
+        } else if(item.equals(getString(R.string.MostPopular))){
             query = "popular?";
         }
         MovieDBTask LoadPopularMovies = new MovieDBTask();
@@ -136,7 +136,7 @@ public class MainActivityFragment extends Fragment {
             }
             String url = "";
             try {
-                url = "http://image.tmdb.org/t/p/w185/" + MoviesList.get(position).getString("poster_path");
+                url = "http://image.tmdb.org/t/p/w342/" + MoviesList.get(position).getString("poster_path");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -207,7 +207,7 @@ public class MainActivityFragment extends Fragment {
                     return null;
                 }
                 JsonStr = buffer.toString();
-                Log.v(LOG_TAG,"mensaje: " + JsonStr);
+                Log.v(LOG_TAG,"message: " + JsonStr);
 
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
