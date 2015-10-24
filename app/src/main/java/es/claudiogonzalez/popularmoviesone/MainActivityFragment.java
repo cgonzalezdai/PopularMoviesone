@@ -2,6 +2,7 @@ package es.claudiogonzalez.popularmoviesone;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -62,12 +63,17 @@ public class MainActivityFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent showDetail = new Intent(getActivity(), DetailActivity.class);
                 try {
-                    showDetail.putExtra("MoviePoster",MoviesList.get(position).getString("poster_path"));
+                    showDetail.putExtra("MovieId", MoviesList.get(position).getString("id"));
+                    showDetail.putExtra("MoviePoster", MoviesList.get(position).getString("poster_path"));
                     showDetail.putExtra("MovieBackdrop", MoviesList.get(position).getString("backdrop_path"));
-                    showDetail.putExtra("MovieTitle", MoviesList.get(position).getString("original_title"));
+                    showDetail.putExtra("MovieTitle", MoviesList.get(position).getString("title"));
+                    showDetail.putExtra("MovieOriginalTitle", MoviesList.get(position).getString("original_title"));
                     showDetail.putExtra("MovieRelease", MoviesList.get(position).getString("release_date"));
-                    showDetail.putExtra("MovieVoteAverage",MoviesList.get(position).getString("vote_average"));
+                    showDetail.putExtra("MovieVoteAverage", MoviesList.get(position).getString("vote_average"));
                     showDetail.putExtra("MovieOverview", MoviesList.get(position).getString("overview"));
+                    if (MoviesList.get(position).has("poster_BASE64") && MoviesList.get(position).has("backdrop_BASE64")) {
+                        showDetail.putExtra("offline", true);
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -96,15 +102,36 @@ public class MainActivityFragment extends Fragment {
         });
     }
 
-    public void ListMoviesOrderBy(String item) {
-        String query = "";
-        if (item.equals(getString(R.string.HighestRated))) {
-            query = "top_rated?";
-        } else if(item.equals(getString(R.string.MostPopular))){
-            query = "popular?";
+    public void ShowFavorites() {
+        FavoritesDBQuery fq = new FavoritesDBQuery();
+        JSONArray MoviesArray = fq.getFavorites(getContext());
+        if (MoviesArray != null) {
+            MoviesList.clear();
+            for(int i = 0; i < MoviesArray.length(); i++) {
+                try {
+                    JSONObject movie = MoviesArray.getJSONObject(i);
+                    MoviesList.add(movie);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            mMoviesAdapter.notifyDataSetChanged();
         }
-        MovieDBTask LoadPopularMovies = new MovieDBTask();
-        LoadPopularMovies.execute(query);
+    }
+
+    public void ListMoviesOrderBy(String item) {
+        if (item.equals(getString(R.string.Favorites))) {
+            ShowFavorites();
+        } else {
+            String query = "";
+            if (item.equals(getString(R.string.HighestRated))) {
+                query = "top_rated?";
+            } else if (item.equals(getString(R.string.MostPopular))) {
+                query = "popular?";
+            }
+            MovieDBTask LoadMovies = new MovieDBTask();
+            LoadMovies.execute(query);
+        }
     }
 
     public class ImageAdapter extends BaseAdapter {
@@ -134,15 +161,25 @@ public class MainActivityFragment extends Fragment {
             } else {
                 imageView = (ImageView) convertView;
             }
-            String url = "";
-            try {
-                url = "http://image.tmdb.org/t/p/w342/" + MoviesList.get(position).getString("poster_path");
-            } catch (JSONException e) {
-                e.printStackTrace();
+            if (MoviesList.get(position).has("poster_BASE64")) {
+                functions f = new functions();
+                try {
+                    Bitmap image = f.base64ToBitmap(MoviesList.get(position).getString("poster_BASE64"));
+                    imageView.setImageBitmap(image);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                String url = "";
+                try {
+                    url = "http://image.tmdb.org/t/p/w342/" + MoviesList.get(position).getString("poster_path");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Picasso.with(mContext)
+                        .load(url)
+                        .into(imageView);
             }
-            Picasso.with(mContext)
-                    .load(url)
-                    .into(imageView);
             return imageView;
         }
 

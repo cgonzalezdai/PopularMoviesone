@@ -1,14 +1,15 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".DetailActivity"
+    android:id="@+id/ScrollViewDetail"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@color/grey_800">
     <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
         android:paddingLeft="0dp"
         android:paddingRight="0dp"
         android:paddingTop="0dp"
@@ -19,10 +20,10 @@
 
 
         <ImageView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:minHeight="200dp"
-            android:id="@+id/imageViewPoster"
+            android:id="@+id/imageViewBackdrop"
             android:contentDescription="@string/no_image" />
 
         <TextView style="@style/fontWhiteXL"
@@ -31,14 +32,13 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="@string/title"
             android:id="@+id/textViewTitle"
-            android:layout_below="@+id/imageViewPoster"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginLeft="10dp"
+            android:layout_below="@+id/imageViewBackdrop"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            android:layout_toLeftOf="@+id/textViewRating"
-            android:layout_toStartOf="@+id/textViewRating" />
+            android:layout_alignLeft="@+id/textViewRelease"
+            android:layout_alignStart="@+id/textViewRelease"
+            android:layout_alignRight="@+id/view"
+            android:layout_alignEnd="@+id/view" />
 
         <TextView style="@style/fontWhite"
             android:layout_width="match_parent"
@@ -47,10 +47,10 @@
             android:text="@string/release"
             android:id="@+id/textViewRelease"
             android:layout_below="@+id/textViewTitle"
-            android:layout_centerHorizontal="true"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="10dp" />
+            android:layout_alignRight="@+id/textViewOverview"
+            android:layout_alignEnd="@+id/textViewOverview"
+            android:layout_alignLeft="@+id/textViewOverview"
+            android:layout_alignStart="@+id/textViewOverview" />
 
         <TextView style="@style/fontWhite"
             android:layout_width="match_parent"
@@ -58,21 +58,132 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/overview"
             android:id="@+id/textViewOverview"
+            android:scrollIndicators="right"
+            android:layout_marginTop="19dp"
             android:layout_below="@+id/textViewRelease"
-            android:layout_centerHorizontal="true"
-            android:layout_margin="15dp"
-            android:scrollIndicators="right" />
+            android:layout_alignRight="@+id/textViewRating"
+            android:layout_alignEnd="@+id/textViewRating"
+            android:layout_alignLeft="@+id/view"
+            android:layout_alignStart="@+id/view" />
 
         <TextView style="@style/fontWhiteXL"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
+            android:layout_marginRight="16dp"
             android:text="@string/rating"
             android:id="@+id/textViewRating"
             android:layout_alignTop="@+id/textViewTitle"
-            android:layout_alignRight="@+id/textViewOverview"
-            android:layout_alignEnd="@+id/textViewOverview" />
+            android:layout_alignRight="@+id/buttonFavorite"
+            android:layout_alignEnd="@+id/buttonFavorite"
+            android:layout_marginEnd="16dp" />
 
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dp"
+            android:layout_below="@+id/textViewOverview"
+            android:background="#ffffff"
+            android:id="@+id/view"
+            android:layout_margin="15dp" />
+
+        <TextView style="@style/fontWhiteXL"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/trailer_title"
+            android:id="@+id/textView"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:layout_alignRight="@+id/textViewRating"
+            android:layout_alignEnd="@+id/textViewRating"
+            android:layout_below="@+id/view"
+            android:layout_marginRight="15dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="15dp"
+            android:layout_alignLeft="@+id/GridViewTrailers"
+            android:layout_alignStart="@+id/GridViewTrailers" />
+
+        <GridView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/GridViewTrailers"
+            android:layout_width="wrap_content"
+            android:layout_height="150dp"
+            android:numColumns="2"
+            android:verticalSpacing="0dp"
+            android:horizontalSpacing="0dp"
+            android:stretchMode="columnWidth"
+            android:gravity="center"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_gravity="center"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginBottom="15dp"
+            android:layout_below="@+id/textView">
+        </GridView>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dp"
+            android:layout_below="@+id/GridViewTrailers"
+            android:background="#ffffff"
+            android:layout_margin="15dp"
+            android:id="@+id/view3" />
+
+        <TextView style="@style/fontWhiteXL"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/review_title"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:layout_below="@+id/view3"
+            android:layout_alignRight="@+id/textViewRating"
+            android:layout_alignEnd="@+id/textViewRating"
+            android:id="@+id/textView3"
+            android:layout_marginRight="15dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="15dp"
+            android:layout_alignLeft="@+id/GridViewReviews"
+            android:layout_alignStart="@+id/GridViewReviews" />
+
+        <GridView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/GridViewReviews"
+            android:layout_width="wrap_content"
+            android:layout_height="300dp"
+            android:numColumns="1"
+            android:verticalSpacing="30dp"
+            android:horizontalSpacing="30dp"
+            android:stretchMode="columnWidth"
+            android:gravity="center"
+            android:layout_gravity="right"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginBottom="15dp"
+            android:layout_below="@+id/textView3">
+        </GridView>
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/favorite"
+            android:id="@+id/buttonFavorite"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:alpha="0.5" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageViewPoster"
+            android:contentDescription="@string/poster2"
+            android:alpha="0.1"
+            android:layout_alignRight="@+id/buttonFavorite"
+            android:layout_alignEnd="@+id/buttonFavorite"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_toStartOf="@id/imageViewBackdrop"
+            android:layout_alignTop="@+id/view"
+            android:layout_alignBottom="@+id/view2" />
 
     </RelativeLayout>
 </ScrollView>

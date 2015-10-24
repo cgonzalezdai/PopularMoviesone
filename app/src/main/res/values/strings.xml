@@ -6,9 +6,21 @@
 
     <string name="MostPopular">Most Popular</string>
     <string name="HighestRated">Highest Rated</string>
+    <string name="Favorites">Favorites</string>
 
     <string name="title">title</string>
     <string name="release">release</string>
     <string name="rating">rating</string>
     <string name="overview">overview</string>
+    <string name="trailer">show trailer</string>
+    <string name="trailer_link">trailerLink</string>
+    <string name="review">review</string>
+    <string name="reviewAuthor">Author</string>
+    <string name="reviewContent">Content</string>
+
+    <string name="favorite">Add to Favorites</string>
+    <string name="i_love_it">I Love It</string>
+    <string name="poster2">poster2</string>
+    <string name="trailer_title">TRAILERS</string>
+    <string name="review_title">REVIEWS</string>
 </resources>
