@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,23 +63,64 @@ public class MainActivityFragment extends Fragment {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent showDetail = new Intent(getActivity(), DetailActivity.class);
-                try {
-                    showDetail.putExtra("MovieId", MoviesList.get(position).getString("id"));
-                    showDetail.putExtra("MoviePoster", MoviesList.get(position).getString("poster_path"));
-                    showDetail.putExtra("MovieBackdrop", MoviesList.get(position).getString("backdrop_path"));
-                    showDetail.putExtra("MovieTitle", MoviesList.get(position).getString("title"));
-                    showDetail.putExtra("MovieOriginalTitle", MoviesList.get(position).getString("original_title"));
-                    showDetail.putExtra("MovieRelease", MoviesList.get(position).getString("release_date"));
-                    showDetail.putExtra("MovieVoteAverage", MoviesList.get(position).getString("vote_average"));
-                    showDetail.putExtra("MovieOverview", MoviesList.get(position).getString("overview"));
-                    if (MoviesList.get(position).has("poster_BASE64") && MoviesList.get(position).has("backdrop_BASE64")) {
-                        showDetail.putExtra("offline", true);
+                if (getResources().getBoolean(R.bool.dual_pane)) {
+                    //tablet
+                    Bundle bundles = new Bundle();
+                    try {
+                        bundles.putString("MovieId", (MoviesList.get(position).has("movie_id") ? MoviesList.get(position).getString("movie_id") : MoviesList.get(position).getString("id")));
+                        bundles.putString("MoviePoster", MoviesList.get(position).getString("poster_path"));
+                        bundles.putString("MovieBackdrop", MoviesList.get(position).getString("backdrop_path"));
+                        bundles.putString("MovieTitle", MoviesList.get(position).getString("title"));
+                        bundles.putString("MovieRelease", MoviesList.get(position).getString("release_date"));
+                        bundles.putString("MovieVoteAverage", MoviesList.get(position).getString("vote_average"));
+                        bundles.putString("MovieOverview", MoviesList.get(position).getString("overview"));
+                        if (MoviesList.get(position).has("poster_BASE64") && MoviesList.get(position).has("backdrop_BASE64")) {
+                            bundles.putBoolean("offline", true);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    DetailActivityFragment fragment = (DetailActivityFragment) getFragmentManager().
+                            findFragmentById(R.id.container2);
+                    if (fragment == null || !fragment.isInLayout()) {
+                        fragment = new DetailActivityFragment();
+                        // get fragment manager
+                        FragmentManager fm = getFragmentManager();
+                        // add
+                        FragmentTransaction ft = fm.beginTransaction();
+                        fragment.setArguments(bundles);
+                        ft.add(R.id.container2, fragment);
+                        ft.addToBackStack(null);
+                        ft.commit();
+                    } else {
+                        // get fragment manager
+                        FragmentManager fm = getFragmentManager();
+                        // replace
+                        FragmentTransaction ft = fm.beginTransaction();
+                        fragment.setArguments(bundles);
+                        ft.replace(R.id.container2, fragment);
+                        ft.addToBackStack(null);
+                        ft.commit();
+                    }
+                } else {
+                    //phone
+                    Intent showDetail = new Intent(getActivity(), DetailActivity.class);
+                    try {
+                        showDetail.putExtra("MovieId", (MoviesList.get(position).has("movie_id") ? MoviesList.get(position).getString("movie_id") : MoviesList.get(position).getString("id")));
+                        showDetail.putExtra("MoviePoster", MoviesList.get(position).getString("poster_path"));
+                        showDetail.putExtra("MovieBackdrop", MoviesList.get(position).getString("backdrop_path"));
+                        showDetail.putExtra("MovieTitle", MoviesList.get(position).getString("title"));
+                        showDetail.putExtra("MovieRelease", MoviesList.get(position).getString("release_date"));
+                        showDetail.putExtra("MovieVoteAverage", MoviesList.get(position).getString("vote_average"));
+                        showDetail.putExtra("MovieOverview", MoviesList.get(position).getString("overview"));
+                        if (MoviesList.get(position).has("poster_BASE64") && MoviesList.get(position).has("backdrop_BASE64")) {
+                            showDetail.putExtra("offline", true);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    startActivity(showDetail);
                 }
-                startActivity(showDetail);
             }
         });
     }
@@ -231,14 +274,14 @@ public class MainActivityFragment extends Fragment {
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
                 InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
+                StringBuilder buffer = new StringBuilder();
                 if (inputStream == null) {
                     return null;
                 }
                 reader = new BufferedReader(new InputStreamReader(inputStream));
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    buffer.append(line + "\n");
+                    buffer.append(line).append("\n");
                 }
                 if (buffer.length() == 0) {
                     return null;

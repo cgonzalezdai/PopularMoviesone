@@ -11,13 +11,113 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import es.claudiogonzalez.popularmoviesone.favoritesDB.FavoritesEntry;
+import es.claudiogonzalez.popularmoviesone.provider.favorites.FavoritesColumns;
+import es.claudiogonzalez.popularmoviesone.provider.favorites.FavoritesContentValues;
+import es.claudiogonzalez.popularmoviesone.provider.favorites.FavoritesSelection;
 
-/**
- * Created by Claudio on 13/10/2015.
- */
 public class FavoritesDBQuery {
 
+    /**
+     * functions to use with android_contentprovider_generator
+     */
+
     public JSONArray getFavorites(Context context) {
+        FavoritesSelection favoritesSelection = new FavoritesSelection();
+        favoritesSelection.orderByVoteAverage(false);
+        String[] projection = {
+                FavoritesColumns.MOVIE_ID,
+                FavoritesColumns.TITLE,
+                FavoritesColumns.RELEASE_DATE,
+                FavoritesColumns.VOTE_AVERAGE,
+                FavoritesColumns.OVERVIEW,
+                FavoritesColumns.POSTER_PATH,
+                FavoritesColumns.POSTER_BASE64,
+                FavoritesColumns.BACKDROP_PATH,
+                FavoritesColumns.BACKDROP_BASE64
+        };
+        Cursor c = context.getContentResolver().query(FavoritesColumns.CONTENT_URI, projection,
+                favoritesSelection.sel(), favoritesSelection.args(), null);
+
+        functions f = new functions();
+        JSONArray Favorites = f.cur2Json(c);
+        c.close();
+        return Favorites;
+    }
+
+    public JSONObject getFavoriteMovie(Context context, String MovieId) throws JSONException {
+
+        FavoritesSelection favoritesSelection = new FavoritesSelection();
+        favoritesSelection.movieId(MovieId);
+        String[] projection = {
+                FavoritesColumns.MOVIE_ID,
+                FavoritesColumns.TITLE,
+                FavoritesColumns.RELEASE_DATE,
+                FavoritesColumns.VOTE_AVERAGE,
+                FavoritesColumns.OVERVIEW,
+                FavoritesColumns.POSTER_PATH,
+                FavoritesColumns.POSTER_BASE64,
+                FavoritesColumns.BACKDROP_PATH,
+                FavoritesColumns.BACKDROP_BASE64
+        };
+        Cursor c = context.getContentResolver().query(FavoritesColumns.CONTENT_URI, projection,
+                favoritesSelection.sel(), favoritesSelection.args(), null);
+        functions f = new functions();
+        JSONObject Favorite = f.cur2Json(c).getJSONObject(0);
+        c.close();
+        return Favorite;
+    }
+
+    public boolean insertFavorite(Context context, String MovieId,String MovieBackdrop,
+                                  String MoviePoster,String MovieTitle,
+                                  String MovieRelease,String MovieVoteAverage,
+                                  String MovieOverview,ImageView backdrop,ImageView poster) {
+        functions f = new functions();
+        FavoritesContentValues values = new FavoritesContentValues();
+        values.putMovieId(MovieId)
+                .putTitle(MovieTitle)
+                .putReleaseDate(MovieRelease)
+                .putOverview(MovieOverview)
+                .putVoteAverage(MovieVoteAverage)
+                .putPosterPath(MoviePoster)
+                .putPosterBase64(f.ImageViewToBase64(poster))
+                .putBackdropPath(MovieBackdrop)
+                .putBackdropBase64(f.ImageViewToBase64(backdrop));
+        context.getContentResolver().insert(FavoritesColumns.CONTENT_URI,values.values());
+        return true;
+    }
+
+    public boolean deleteFavorite(Context context, String MovieId) {
+        FavoritesSelection favoritesSelection = new FavoritesSelection();
+        favoritesSelection.movieId(MovieId);
+        context.getContentResolver().delete(FavoritesColumns.CONTENT_URI,favoritesSelection.sel(),favoritesSelection.args());
+        return true;
+    }
+
+    public boolean isFavoriteMovie(Context context, String MovieId) {
+
+        FavoritesSelection favoritesSelection = new FavoritesSelection();
+        favoritesSelection.movieId(MovieId);
+        String[] projection = {
+                FavoritesColumns.MOVIE_ID,
+                FavoritesColumns.TITLE,
+                FavoritesColumns.RELEASE_DATE,
+                FavoritesColumns.VOTE_AVERAGE,
+                FavoritesColumns.OVERVIEW,
+                FavoritesColumns.POSTER_PATH,
+                FavoritesColumns.BACKDROP_PATH
+        };
+        Cursor c = context.getContentResolver().query(FavoritesColumns.CONTENT_URI, projection,
+                favoritesSelection.sel(), favoritesSelection.args(), null);
+        int resp = c.getCount();
+        c.close();
+        return resp > 0;
+    }
+
+    /**
+     * functions to use without android_contentprovider_generator
+     */
+
+    public JSONArray getFavoritesOld(Context context) {
 
         FavoritesDBHelper helper = new FavoritesDBHelper(context);
         SQLiteDatabase db = helper.getReadableDatabase();
@@ -57,7 +157,7 @@ public class FavoritesDBQuery {
         return Favorites;
     }
 
-    public JSONObject getFavoriteMovie(Context context, String MovieId) throws JSONException {
+    public JSONObject getFavoriteMovieOld(Context context, String MovieId) throws JSONException {
 
         FavoritesDBHelper helper = new FavoritesDBHelper(context);
         SQLiteDatabase db = helper.getReadableDatabase();
@@ -97,7 +197,10 @@ public class FavoritesDBQuery {
         return Favorite;
     }
 
-    public boolean insertFavorite(Context context, String MovieId,String MovieBackdrop,String MoviePoster,String MovieTitle,String MovieOriginalTitle,String MovieRelease,String MovieVoteAverage,String MovieOverview,ImageView backdrop,ImageView poster) {
+    public boolean insertFavoriteOld(Context context, String MovieId,String MovieBackdrop,
+                                  String MoviePoster,String MovieTitle,String MovieOriginalTitle,
+                                  String MovieRelease,String MovieVoteAverage,
+                                  String MovieOverview,ImageView backdrop,ImageView poster) {
         // Gets the data repository in write mode
         functions f = new functions();
         FavoritesDBHelper helper = new FavoritesDBHelper(context);
@@ -120,7 +223,7 @@ public class FavoritesDBQuery {
 
     }
 
-    public boolean deleteFavorite(Context context, String MovieId) {
+    public boolean deleteFavoriteOld(Context context, String MovieId) {
         FavoritesDBHelper helper = new FavoritesDBHelper(context);
         SQLiteDatabase db = helper.getWritableDatabase();
         // Define 'where' part of query.
@@ -131,7 +234,7 @@ public class FavoritesDBQuery {
         return db.delete(FavoritesEntry.TABLE_NAME, selection, selectionArgs) > 0;
     }
 
-    public boolean isFavoriteMovie(Context context, String MovieId) {
+    public boolean isFavoriteMovieOld(Context context, String MovieId) {
 
         FavoritesDBHelper helper = new FavoritesDBHelper(context);
         SQLiteDatabase db = helper.getReadableDatabase();

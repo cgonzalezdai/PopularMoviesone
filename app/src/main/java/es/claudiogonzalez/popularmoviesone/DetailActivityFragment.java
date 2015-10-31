@@ -7,8 +7,13 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -44,51 +49,85 @@ public class DetailActivityFragment extends Fragment {
     private ArrayList<JSONObject> ReviewList = new ArrayList<>();
     private TrailerAdapter mTrailerAdapter;
     private ReviewAdapter mReviewAdapter;
-
+    private ShareActionProvider mShareActionProvider;
+    private String TrailerKey;
+    private Boolean offline;
     public DetailActivityFragment() {
+        setHasOptionsMenu(true);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Intent i = getActivity().getIntent();
-        String MovieId = i.getStringExtra("MovieId");
-        Boolean offline = i.getBooleanExtra("offline", false);
+        String MovieId;
         String MovieBackdrop = "";
         String MovieBackdrop64 = "";
         String MoviePoster = "";
         String MoviePoster64 = "";
         String MovieTitle = "";
-        String MovieOriginalTitle = "";
         String MovieRelease = "";
         String MovieVoteAverage = "";
         String MovieOverview = "";
-        if (offline) {
-            FavoritesDBQuery fq = new FavoritesDBQuery();
-            try {
-                JSONObject favoriteMovie = fq.getFavoriteMovie(getContext(), MovieId);
-                MovieBackdrop = favoriteMovie.getString("backdrop_path");
-                MovieBackdrop64 = favoriteMovie.getString("backdrop_BASE64");
-                MoviePoster = favoriteMovie.getString("poster_path");
-                MoviePoster64 = favoriteMovie.getString("poster_BASE64");
-                MovieTitle = favoriteMovie.getString("title");
-                MovieOriginalTitle = favoriteMovie.getString("original_title");
-                MovieRelease = favoriteMovie.getString("release_date");
-                MovieVoteAverage = favoriteMovie.getString("vote_average");
-                MovieOverview = favoriteMovie.getString("overview");
-            } catch (JSONException e) {
-                e.printStackTrace();
+        if (getResources().getBoolean(R.bool.dual_pane) && getArguments().size()>0) {
+        //tablet
+            Bundle bundle = getArguments();
+            MovieId = bundle.getString("MovieId");
+            offline = bundle.getBoolean("offline", false);
+            if (offline) {
+                FavoritesDBQuery fq = new FavoritesDBQuery();
+                try {
+                    JSONObject favoriteMovie = fq.getFavoriteMovie(getContext(), MovieId);
+                    MovieBackdrop = favoriteMovie.getString("backdrop_path");
+                    MovieBackdrop64 = favoriteMovie.getString("backdrop_BASE64");
+                    MoviePoster = favoriteMovie.getString("poster_path");
+                    MoviePoster64 = favoriteMovie.getString("poster_BASE64");
+                    MovieTitle = favoriteMovie.getString("title");
+                    MovieRelease =  "(" + favoriteMovie.getString("release_date") + ")";
+                    MovieVoteAverage = favoriteMovie.getString("vote_average");
+                    MovieOverview = favoriteMovie.getString("overview");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                MovieBackdrop = bundle.getString("MovieBackdrop");
+                MovieBackdrop64 = "";
+                MoviePoster = bundle.getString("MoviePoster");
+                MoviePoster64 = "";
+                MovieTitle = bundle.getString("MovieTitle");
+                MovieRelease =  "(" + bundle.getString("MovieRelease") + ")";
+                MovieVoteAverage = bundle.getString("MovieVoteAverage");
+                MovieOverview = bundle.getString("MovieOverview");
             }
         } else {
-            MovieBackdrop = i.getStringExtra("MovieBackdrop");
-            MovieBackdrop64 = "";
-            MoviePoster = i.getStringExtra("MoviePoster");
-            MoviePoster64 = "";
-            MovieTitle = i.getStringExtra("MovieTitle");
-            MovieOriginalTitle = i.getStringExtra("MovieOriginalTitle");
-            MovieRelease = i.getStringExtra("MovieRelease");
-            MovieVoteAverage = i.getStringExtra("MovieVoteAverage");
-            MovieOverview = i.getStringExtra("MovieOverview");
+        //phone
+            Intent i = getActivity().getIntent();
+            MovieId = i.getStringExtra("MovieId");
+            offline = i.getBooleanExtra("offline", false);
+            if (offline) {
+                FavoritesDBQuery fq = new FavoritesDBQuery();
+                try {
+                    JSONObject favoriteMovie = fq.getFavoriteMovie(getContext(), MovieId);
+                    MovieBackdrop = favoriteMovie.getString("backdrop_path");
+                    MovieBackdrop64 = favoriteMovie.getString("backdrop_BASE64");
+                    MoviePoster = favoriteMovie.getString("poster_path");
+                    MoviePoster64 = favoriteMovie.getString("poster_BASE64");
+                    MovieTitle = favoriteMovie.getString("title");
+                    MovieRelease =  "(" + favoriteMovie.getString("release_date") + ")";
+                    MovieVoteAverage = favoriteMovie.getString("vote_average");
+                    MovieOverview = favoriteMovie.getString("overview");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                MovieBackdrop = i.getStringExtra("MovieBackdrop");
+                MovieBackdrop64 = "";
+                MoviePoster = i.getStringExtra("MoviePoster");
+                MoviePoster64 = "";
+                MovieTitle = i.getStringExtra("MovieTitle");
+                MovieRelease = "(" + i.getStringExtra("MovieRelease") + ")";
+                MovieVoteAverage = i.getStringExtra("MovieVoteAverage");
+                MovieOverview = i.getStringExtra("MovieOverview");
+            }
         }
 
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
@@ -103,17 +142,34 @@ public class DetailActivityFragment extends Fragment {
         backdrop.startAnimation(scale);
 
         ((TextView) rootView.findViewById(R.id.textViewTitle)).setText(MovieTitle);
-        ((TextView) rootView.findViewById(R.id.textViewRelease)).setText("(" + MovieRelease + ")");
+        ((TextView) rootView.findViewById(R.id.textViewRelease)).setText(MovieRelease);
         ((TextView) rootView.findViewById(R.id.textViewRating)).setText(MovieVoteAverage);
         ((TextView) rootView.findViewById(R.id.textViewOverview)).setText(MovieOverview);
-
 
         createGridViewTrailer(rootView, MovieId);
         createGridViewReview(rootView, MovieId);
         createButtonFavorite(rootView, MovieId);
 
+
         ((ScrollView) rootView.findViewById(R.id.ScrollViewDetail)).smoothScrollTo(0, 0);
         return rootView;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Retrieve the share menu item
+        MenuItem menuItem = menu.findItem(R.id.action_share);
+        // Get the provider and hold onto it to set/change the share intent.
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+        mShareActionProvider.setShareIntent(createShareTrailerIntent(TrailerKey));
+    }
+
+    private Intent createShareTrailerIntent(String key) {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "https://youtu.be/" + key);
+        return shareIntent;
     }
 
     public void createImageView(ImageView imageView, Boolean offline, String image64, String image) {
@@ -129,7 +185,6 @@ public class DetailActivityFragment extends Fragment {
     }
 
     public void createGridViewTrailer(View rootView, String MovieId) {
-        functions f = new functions();
         VideoDBTask LoadTrailer = new VideoDBTask();
         LoadTrailer.execute(MovieId, "/videos");
         mTrailerAdapter = new TrailerAdapter(getActivity(), TrailerList);
@@ -170,6 +225,7 @@ public class DetailActivityFragment extends Fragment {
         final Button buttonFavorite = (Button) rootView.findViewById(R.id.buttonFavorite);
         final ImageView backdrop = (ImageView) rootView.findViewById(R.id.imageViewBackdrop);
         final ImageView poster = (ImageView) rootView.findViewById(R.id.imageViewPoster);
+
         if (fq.isFavoriteMovie(getContext(), MovieId)){
             buttonFavorite.setText(R.string.i_love_it);
         } else {
@@ -178,28 +234,34 @@ public class DetailActivityFragment extends Fragment {
         buttonFavorite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = getActivity().getIntent();
-                String MovieId = i.getStringExtra("MovieId");
-                String MovieBackdrop = i.getStringExtra("MovieBackdrop");
-                String MoviePoster = i.getStringExtra("MoviePoster");
-                String MovieTitle = i.getStringExtra("MovieTitle");
-                String MovieOriginalTitle = i.getStringExtra("MovieOriginalTitle");
-                String MovieRelease = i.getStringExtra("MovieRelease");
-                String MovieVoteAverage = i.getStringExtra("MovieVoteAverage");
-                String MovieOverview = i.getStringExtra("MovieOverview");
-                //FavoritesDBQuery fq = new FavoritesDBQuery();
-                if (fq.isFavoriteMovie(getContext(), MovieId)){
-                    fq.deleteFavorite(getContext(),MovieId);
+                String MovieId, MovieBackdrop, MoviePoster, MovieTitle, MovieRelease, MovieVoteAverage, MovieOverview;
+                if (getResources().getBoolean(R.bool.dual_pane)) {
+                    //tablet
+                    Bundle bundle = getArguments();
+                    MovieId = bundle.getString("MovieId");
+                    MovieBackdrop = bundle.getString("MovieBackdrop");
+                    MoviePoster = bundle.getString("MoviePoster");
+                    MovieTitle = bundle.getString("MovieTitle");
+                    MovieRelease = bundle.getString("MovieRelease");
+                    MovieVoteAverage = bundle.getString("MovieVoteAverage");
+                    MovieOverview = bundle.getString("MovieOverview");
+                } else {
+                    //phone
+                    Intent i = getActivity().getIntent();
+                    MovieId = i.getStringExtra("MovieId");
+                    MovieBackdrop = i.getStringExtra("MovieBackdrop");
+                    MoviePoster = i.getStringExtra("MoviePoster");
+                    MovieTitle = i.getStringExtra("MovieTitle");
+                    MovieRelease = i.getStringExtra("MovieRelease");
+                    MovieVoteAverage = i.getStringExtra("MovieVoteAverage");
+                    MovieOverview = i.getStringExtra("MovieOverview");
+                }
+                if (fq.isFavoriteMovie(getContext(), MovieId)) {
+                    fq.deleteFavorite(getContext(), MovieId);
                     buttonFavorite.setText(R.string.favorite);
                 } else {
-                    fq.insertFavorite(getContext(),MovieId, MovieBackdrop, MoviePoster, MovieTitle, MovieOriginalTitle, MovieRelease, MovieVoteAverage, MovieOverview, backdrop, poster);
+                    fq.insertFavorite(getContext(), MovieId, MovieBackdrop, MoviePoster, MovieTitle, MovieRelease, MovieVoteAverage, MovieOverview, backdrop, poster);
                     buttonFavorite.setText(R.string.i_love_it);
-//                    Functions f = new Functions();
-//                    try {
-//                        f.copyAppDbToDownloadFolder(getContext());
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
                 }
             }
         });
@@ -302,8 +364,14 @@ public class DetailActivityFragment extends Fragment {
                         for(int i = 0; i < MoviesArray.length(); i++) {
                             JSONObject movie = MoviesArray.getJSONObject(i);
                             TrailerList.add(movie);
+                            if(i==0) {
+                                TrailerKey = movie.getString("key");
+                            }
                         }
                         mTrailerAdapter.notifyDataSetChanged();
+                        if(mShareActionProvider != null) {
+                            mShareActionProvider.setShareIntent(createShareTrailerIntent(TrailerKey));
+                        }
                     } else  {
                         ReviewList.clear();
                         for(int i = 0; i < MoviesArray.length(); i++) {
@@ -345,14 +413,14 @@ public class DetailActivityFragment extends Fragment {
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
                 InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
+                StringBuilder buffer = new StringBuilder();
                 if (inputStream == null) {
                     return null;
                 }
                 reader = new BufferedReader(new InputStreamReader(inputStream));
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    buffer.append(line + "\n");
+                    buffer.append(line).append("\n");
                 }
                 if (buffer.length() == 0) {
                     return null;

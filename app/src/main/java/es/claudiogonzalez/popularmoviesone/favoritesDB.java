@@ -2,9 +2,6 @@ package es.claudiogonzalez.popularmoviesone;
 
 import android.provider.BaseColumns;
 
-/**
- * Created by Claudio on 10/10/2015.
- */
 public final class favoritesDB {
 
     public favoritesDB() {}

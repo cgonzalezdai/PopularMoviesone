@@ -23,4 +23,5 @@
     <string name="poster2">poster2</string>
     <string name="trailer_title">TRAILERS</string>
     <string name="review_title">REVIEWS</string>
+    <string name="share_movie">Share Trailer</string>
 </resources>

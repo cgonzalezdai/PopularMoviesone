@@ -8,19 +8,20 @@
     <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="100dp"
-        android:paddingRight="100dp"
+        android:paddingLeft="0dp"
+        android:paddingRight="0dp"
         android:paddingTop="0dp"
         android:paddingBottom="4dp"
         android:background="@color/grey_800"
+        android:animateLayoutChanges="true"
         tools:context="es.claudiogonzalez.popularmoviesone.DetailActivityFragment">
 
 
         <ImageView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:minHeight="200dp"
             android:id="@+id/imageViewBackdrop"
             android:contentDescription="@string/no_image" />
@@ -32,13 +33,12 @@
             android:text="@string/title"
             android:id="@+id/textViewTitle"
             android:layout_below="@+id/imageViewBackdrop"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            android:layout_toLeftOf="@+id/textViewRating"
-            android:layout_toStartOf="@+id/textViewRating" />
+            android:layout_alignLeft="@+id/textViewRelease"
+            android:layout_alignStart="@+id/textViewRelease"
+            android:layout_alignRight="@+id/view"
+            android:layout_alignEnd="@+id/view" />
 
         <TextView style="@style/fontWhite"
             android:layout_width="match_parent"
@@ -47,10 +47,10 @@
             android:text="@string/release"
             android:id="@+id/textViewRelease"
             android:layout_below="@+id/textViewTitle"
-            android:layout_centerHorizontal="true"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="10dp" />
+            android:layout_alignRight="@+id/textViewOverview"
+            android:layout_alignEnd="@+id/textViewOverview"
+            android:layout_alignLeft="@+id/textViewOverview"
+            android:layout_alignStart="@+id/textViewOverview" />
 
         <TextView style="@style/fontWhite"
             android:layout_width="match_parent"
@@ -58,20 +58,25 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/overview"
             android:id="@+id/textViewOverview"
+            android:scrollIndicators="right"
+            android:layout_marginTop="19dp"
             android:layout_below="@+id/textViewRelease"
-            android:layout_centerHorizontal="true"
-            android:layout_margin="15dp"
-            android:scrollIndicators="right" />
+            android:layout_alignRight="@+id/textViewRating"
+            android:layout_alignEnd="@+id/textViewRating"
+            android:layout_alignLeft="@+id/view"
+            android:layout_alignStart="@+id/view" />
 
         <TextView style="@style/fontWhiteXL"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
+            android:layout_marginRight="16dp"
             android:text="@string/rating"
             android:id="@+id/textViewRating"
             android:layout_alignTop="@+id/textViewTitle"
-            android:layout_alignRight="@+id/textViewOverview"
-            android:layout_alignEnd="@+id/textViewOverview" />
+            android:layout_alignRight="@+id/buttonFavorite"
+            android:layout_alignEnd="@+id/buttonFavorite"
+            android:layout_marginEnd="16dp" />
 
         <View
             android:layout_width="fill_parent"
@@ -164,7 +169,7 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:alpha="0.5" />
+            android:alpha="0.5"/>
 
         <ImageView
             android:layout_width="wrap_content"
@@ -179,5 +184,6 @@
             android:layout_toStartOf="@id/imageViewBackdrop"
             android:layout_alignTop="@+id/view"
             android:layout_alignBottom="@+id/view2" />
+
     </RelativeLayout>
 </ScrollView>
